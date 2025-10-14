@@ -1,0 +1,33 @@
+# prod project
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: prod
+  namespace: argocd
+spec:
+  description: Prod applications
+  sourceRepos:
+    - '*'                                   # or restrict to your repo URL(s)
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc # in-cluster KinD
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'
+---
+# staging project
+apiVersion: argoproj.io/v1alpha1
+kind: AppProject
+metadata:
+  name: staging
+  namespace: argocd
+spec:
+  description: Staging applications
+  sourceRepos:
+    - '*'
+  destinations:
+    - namespace: '*'
+      server: https://kubernetes.default.svc
+  clusterResourceWhitelist:
+    - group: '*'
+      kind: '*'

@@ -1,16 +1,63 @@
 apiVersion: argoproj.io/v1alpha1
-kind: Application
+kind: ApplicationSet
 metadata:
-  name: my-app
+  name: applicationset-deployment
   namespace: argocd
+  labels:
+    kind: deployment
 spec:
-  project: default
-  source:
-    repoURL: 'https://github.com/starkenglea/argocd-test'
-    targetRevision: HEAD
-    path: overlays/dev
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: default
-  syncPolicy:
-    automated: {}
+  generators:
+    - matrix:
+        generators:
+          - list:
+              elements:
+                - env: staging
+                  project: staging
+                  server: https://kubernetes.default.svc
+                - env: prod 
+                  project: prod
+                  server: https://kubernetes.default.svc
+          - list:
+              elements:
+                - app: api
+                  namespace: base
+                - app: asset-api
+                  namespace: base
+  template:
+    metadata:
+      name: new-{{ env }}-{{ app }}-deployment # subject to change
+      namespace: argocd
+      labels:
+        env: "{{ env }}"
+        kind: deployment
+    spec:
+      project: "{{ project }}"
+      destination:
+        server: "{{ server }}"
+        namespace: "{{ namespace }}"
+      source:
+        repoURL: https://github.com/Stark-Tech-Group/stark-k8-manifest.git
+        path: ./deployment/overlay/tsp/{{ env }}/{{ app }}
+        targetRevision: dev
+      syncPolicy:
+        automated:
+          enabled: true
+        syncOptions:
+          - ApplyOutOfSyncOnly=true
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: my-app
+#   namespace: argocd
+# spec:
+#   project: default
+#   source:
+#     repoURL: 'https://github.com/starkenglea/argocd-test'
+#     targetRevision: HEAD
+#     path: overlays/dev
+#   destination:
+#     server: https://kubernetes.default.svc
+#     namespace: default
+#   syncPolicy:
+#     automated: {}
+#
