@@ -1,0 +1,1 @@
+ApplicationSet test just uses the `kubectl apply -n argocd argocd-test-argo` after the projects / KinD are set up. Let me know if you run into any weirdness before touch base meeting. (also this was built on top of a previous proof of concept, a bunch of the files are obsolete, and I didn't delete them.
